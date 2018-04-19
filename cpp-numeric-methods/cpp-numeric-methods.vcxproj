@@ -113,6 +113,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="numeric_methods.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="numeric_methods.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
