@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Debug
+/cpp-numeric-methods/Debug
+/cpp-numeric-methods.VC.db
+/cpp-numeric-methods.VC.VC.opendb
+/.vs/cpp-numeric-methods/v14/.suo
