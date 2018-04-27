@@ -61,4 +61,7 @@ namespace numeric_methods {
 	//todo it!!!! remake!
 	void reflection_method(double** A, size_t size);
 
+	void just_reflection(double** A, size_t size);
+
+	double** matrix_mult(double** A, double** B, size_t size);
 }

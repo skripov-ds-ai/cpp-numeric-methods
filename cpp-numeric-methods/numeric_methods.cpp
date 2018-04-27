@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <iostream>
 
-//using namespace std;
+using namespace std;
 
 namespace numeric_methods {
 
@@ -162,10 +162,7 @@ namespace numeric_methods {
 		}
 	}
 
-
-	double* normal_w(double* a, size_t size) {
-		double* w = create_vector(size);
-
+	void normal_w(double* a, double* w, size_t size) {
 		for (size_t i = 0; i < size; i++) {
 			w[i] = -a[i];
 		}
@@ -174,12 +171,10 @@ namespace numeric_methods {
 
 		w[0] -= sgn(a[0]) * length_a;
 
-		double length = sqrt(2 * (length_a * length_a + fabs(a[0]) * length_a));
+		double length = sqrt(2 * (length_a + fabs(a[0])) * length_a);
 		for (size_t i = 0; i < size; i++) {
 			w[i] /= length;
 		}
-
-		return w;
 	}
 
 	size_t hand_filling(double**& a) {
@@ -226,7 +221,7 @@ namespace numeric_methods {
 
 	void swap_columns(double** a, size_t size, size_t i, size_t j) {
 		for (int k = 0; k < size; k++) {
-			double tmp = a[i][k];
+			double tmp = a[k][i];
 			a[k][i] = a[k][j];
 			a[k][j] = tmp;
 		}
@@ -284,8 +279,102 @@ namespace numeric_methods {
 		return tmp;
 	}
 
+	// still raw method
+	// danger! todo this method!
+	void just_reflection(double** A, size_t size) {
+		double* diag = create_vector(size);
+		for (int i = 0; i < size; i++) {
+			diag[i] = A[i][i];
+		}
+
+		double* column = create_vector(size);
+		double* w = create_vector(size);
+
+		for (int j = 0; j < size - 1; j++) {
+			// берем редуцированный столбец, чтобы построить w
+			for (int i = 0; i < j; i++) {
+				column[i] = 0;
+			}
+			for (int i = j; i < size; i++) {
+				column[i] = A[i][j];
+			}
+		    normal_w(column, w, size);
+
+			for (int i = j; i < size; i++) {
+				// выделяем редуцированный столбец
+				for (int k = 0; k < j; k++) {
+					column[k] = 0;
+				}
+				for (int k = j; k < size; k++) {
+					column[k] = A[k][i];
+				}
+				double sc_prod = scalar_product(column, w, size);
+				
+				for (int k = 0; k < size; k++) {
+					A[k][i] -= 2 * sc_prod * w[k];
+				}
+			}
+
+			diag[j] = A[j][j];
+			for (int i = j; i < size; i++) {
+				A[i][j] = w[i];
+			}
+		}
+		
+		{
+			double* w_diag = create_vector(size);
+
+			for (int i = 0; i < size; i++) {
+				w_diag[i] = A[i][i];
+				A[i][i] = diag[i];
+			}
+
+			inverse_triangle_matrix(A, size);
+
+			for (int i = 0; i < size; i++) {
+				diag[i] = A[i][i];
+				A[i][i] = w_diag[i];
+			}
+
+			delete_vector(w_diag, size);
+		}
+
+		A[size - 1][size - 1] = diag[size - 1];
+		for (int j = size - 2; j > -1; j--) {
+			// берем редуцированный столбец w
+			for (int i = 0; i < j; i++) {
+				w[i] = 0;
+			}
+			for (int i = j; i < size; i++) {
+				w[i] = A[i][j];
+				A[i][j] = 0;
+			}
+			A[j][j] = diag[j];
+
+			for (int i = j; i < size; i++) {
+				// выделяем редуцированную строку
+				for (int k = 0; k < j; k++) {
+					column[k] = 0;
+				}
+				for (int k = j; k < size; k++) {
+					column[k] = A[i][k];
+				}
+				double sc_prod = scalar_product(column, w, size);
+
+				for (int k = 0; k < size; k++) {
+					A[i][k] -= 2 * sc_prod * w[k];
+				}
+			}
+		}
+
+		//delete_vector(diag_w, size);
+		delete_vector(column, size);
+		delete_vector(w, size);
+		delete_vector(diag, size);
+	}
+
 	// method for coursework
-	// todo it!!!!!
+	// todo it!
 	void reflection_method(double** A, size_t size) {
 		int* transposes = new int[size];
 
@@ -294,34 +383,23 @@ namespace numeric_methods {
 			diag[i] = A[i][i];
 		}
 
-		for (int j = size - 1; j > -1; j--) {
-			double* tmp = create_vector(size - j);
-			for (int i = j; i < size; i++) {
-				tmp[i - j] = A[i][j];
-			}
-
-			int swap_index = index_for_swap(A, size, j);
-			if (j != swap_index) {
-				swap_columns(A, size, j, swap_index);
-			}
-			transposes[j] = swap_index;
-
-			inverse_triangle_matrix(A, size);
-
-			tmp[0] = diag[j];
-			double* w = normal_w(tmp, size - j);
-
-			double a_w_j = scalar_product(tmp, w, size);
-			for (int i = j; i < size; i++) {
-				A[i][j] -= 2 * a_w_j * w[i - j];
-			}
-
-			delete_vector(w, size - j);
-			delete_vector(tmp, size - j);
-		}
-
 		delete_vector(diag, size);
 		delete_int_vector(transposes, size);
 	}
 
+	double** matrix_mult(double** A, double** B, size_t size)
+	{
+		double** C = create_matrix(size);
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				C[i][j] = 0;
+				for (int k = 0; k < size; k++) {
+					C[i][j] += A[i][k] * B[k][j];
+				}
+			}
+		}
+
+		return C;
+	}
 }
