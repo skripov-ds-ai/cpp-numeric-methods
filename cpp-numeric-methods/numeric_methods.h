@@ -34,12 +34,12 @@ namespace numeric_methods {
 
 	double infinity_norm(double** matr, size_t n);
 
-	double vector_length(double* a, size_t size);
+	double vector_length(double* a, size_t j, size_t size);
 
 	void inverse_triangle_matrix(double** u, size_t size);
 
 
-	double* normal_w(double* a, size_t size);
+	void normal_w(double* a, double*w, size_t j, size_t size);
 
 	size_t hand_filling(double**& a);
 
@@ -51,7 +51,7 @@ namespace numeric_methods {
 
 	void delete_int_vector(int* t, size_t size);
 
-	double scalar_product(double* a, double* b, size_t size);
+	double scalar_product(double* a, double* b, size_t j, size_t size);
 
 	int index_for_swap(double** A, size_t size, int j);
 

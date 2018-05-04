@@ -279,11 +279,10 @@ namespace numeric_methods {
 
 			for (int j = i + 1; j < size; j++) {
 				double t = 0.;
-				for (size_t k = i + 1; k <= j; k++) {
-					t += tmp[k] * u[k][j];
+				for (size_t k = i + 1; k < j + 1; k++) {
+					t -= tmp[k] * u[k][j];
 				}
-				u[i][j] = t;
-				u[i][j] /= -tmp[i];
+				u[i][j] = t / tmp[i];
 			}
 
 		}
@@ -357,7 +356,7 @@ namespace numeric_methods {
 		{
 			double* w_diag = create_vector(size);
 
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < size - 1; i++) {
 				w_diag[i] = A[i][i];
 				A[i][i] = diag[i];
 			}
@@ -365,7 +364,7 @@ namespace numeric_methods {
 			// обратная треугольная
 			inverse_triangle_matrix(A, size);
 
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < size - 1; i++) {
 				diag[i] = A[i][i];
 				A[i][i] = w_diag[i];
 			}
@@ -373,7 +372,7 @@ namespace numeric_methods {
 			delete_vector(w_diag, size);
 		}
 
-		A[size - 1][size - 1] = diag[size - 1];
+		//A[size - 1][size - 1] = diag[size - 1];
 		for (int j = size - 2; j > -1; j--) {
 			// берем редуцированный столбец w
 			//for (int i = 0; i < j; i++) {
