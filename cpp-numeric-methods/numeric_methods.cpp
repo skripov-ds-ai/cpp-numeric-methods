@@ -36,9 +36,11 @@ namespace numeric_methods {
 	//}
 
 
-	template <typename T> int sgn(T val) {
-		return (T(0) < val) - (val < T(0));
-	}
+
+	//template <typename T> int sgn(T val) {
+	//	return (T(0) < val) - (val < T(0));
+	//}
+
 
 	double* create_vector(size_t n) {
 		double* tmp = new double[n];
@@ -131,15 +133,15 @@ namespace numeric_methods {
 		return tmp;
 	}
 
-	double vector_length(double* a, size_t size) {
-		double tmp(0);
-		for (size_t i = 0; i < size; i++) {
+	double vector_length(double* a, size_t j, size_t size) {
+		double tmp = 0.;
+		for (size_t i = j; i < size; i++) {
 			tmp += a[i] * a[i];
 		}
 		return sqrt(tmp);
 	}
 
-	void inverse_triangle_matrix(double** u, size_t size) {
+	/*void inverse_triangle_matrix(double** u, size_t size) {
 		for (int i = size - 1; i > -1; i--) {
 			double* u_i_n = create_vector(size - i);
 
@@ -160,22 +162,7 @@ namespace numeric_methods {
 
 			delete_vector(u_i_n, size - i);
 		}
-	}
-
-	void normal_w(double* a, double* w, size_t size) {
-		for (size_t i = 0; i < size; i++) {
-			w[i] = -a[i];
-		}
-
-		double length_a = vector_length(w, size);
-
-		w[0] -= sgn(a[0]) * length_a;
-
-		double length = sqrt(2 * (length_a + fabs(a[0])) * length_a);
-		for (size_t i = 0; i < size; i++) {
-			w[i] /= length;
-		}
-	}
+	}*/
 
 	size_t hand_filling(double**& a) {
 		size_t size(0);
@@ -190,7 +177,7 @@ namespace numeric_methods {
 				double tmp(0);
 				scanf_s("%lf", &tmp);
 
-				printf("%lf\n\n", tmp);
+				//printf("%lf\n\n", tmp);
 				a[i][j] = tmp;
 			}
 		}
@@ -238,9 +225,9 @@ namespace numeric_methods {
 		delete[] t;
 	}
 
-	double scalar_product(double* a, double* b, size_t size) {
-		double tmp(0);
-		for (size_t i = 0; i < size; i++) {
+	double scalar_product(double* a, double* b, size_t j, size_t size) {
+		double tmp = 0.;
+		for (size_t i = j; i < size; i++) {
 			tmp += a[i] * b[i];
 		}
 		return tmp;
@@ -279,6 +266,48 @@ namespace numeric_methods {
 		return tmp;
 	}
 
+	// todo! возможно ошибка здесь!
+	void inverse_triangle_matrix(double** u, size_t size) {
+		double *tmp = create_vector(size);
+		for (int i = size - 1; i > -1; i--) {
+
+			for (int j = i; j < size; j++) {
+				tmp[j] = u[i][j];
+			}
+
+			u[i][i] = 1. / tmp[i];
+
+			for (int j = i + 1; j < size; j++) {
+				double t = 0.;
+				for (size_t k = i + 1; k <= j; k++) {
+					t += tmp[k] * u[k][j];
+				}
+				u[i][j] = t;
+				u[i][j] /= -tmp[i];
+			}
+
+		}
+		delete_vector(tmp, size);
+	}
+
+	void normal_w(double* a, double* w, size_t j, size_t size) {
+		//for (size_t i = 0; i < j; i++) {
+		//	w[i] = 0;
+		//}
+		for (size_t i = j; i < size; i++) {
+			w[i] = -a[i];
+		}
+
+		double length_a = vector_length(w, j, size);
+
+		w[j] += ((a[j] > 0) ? -length_a : length_a);
+
+		double length = sqrt(2 * (length_a + fabs(a[j])) * length_a);
+		for (size_t i = j; i < size; i++) {
+			w[i] /= length;
+		}
+	}
+
 	// still raw method
 	// danger! todo this method!
 	void just_reflection(double** A, size_t size) {
@@ -287,31 +316,34 @@ namespace numeric_methods {
 			diag[i] = A[i][i];
 		}
 
+		// column - лишнее
 		double* column = create_vector(size);
 		double* w = create_vector(size);
 
 		for (int j = 0; j < size - 1; j++) {
 			// берем редуцированный столбец, чтобы построить w
 			for (int i = 0; i < j; i++) {
-				column[i] = 0;
+				column[i] = 0.;
+				//w[i] = 0;
 			}
 			for (int i = j; i < size; i++) {
 				column[i] = A[i][j];
+				//w[i] = 0;
 			}
-		    normal_w(column, w, size);
+		    normal_w(column, w, j, size);
 
 			for (int i = j; i < size; i++) {
 				// выделяем редуцированный столбец
-				for (int k = 0; k < j; k++) {
-					column[k] = 0;
-				}
+				//for (int k = 0; k < j; k++) {
+				//	column[k] = 0.;
+				//}
 				for (int k = j; k < size; k++) {
 					column[k] = A[k][i];
 				}
-				double sc_prod = scalar_product(column, w, size);
+				double sc_prod = scalar_product(column, w, j, size);
 				
-				for (int k = 0; k < size; k++) {
-					A[k][i] -= 2 * sc_prod * w[k];
+				for (int k = j; k < size; k++) {
+					A[k][i] -= 2. * sc_prod * w[k];
 				}
 			}
 
@@ -321,6 +353,7 @@ namespace numeric_methods {
 			}
 		}
 		
+		// ошибка должна быть здесь!
 		{
 			double* w_diag = create_vector(size);
 
@@ -329,6 +362,7 @@ namespace numeric_methods {
 				A[i][i] = diag[i];
 			}
 
+			// обратная треугольная
 			inverse_triangle_matrix(A, size);
 
 			for (int i = 0; i < size; i++) {
@@ -342,30 +376,31 @@ namespace numeric_methods {
 		A[size - 1][size - 1] = diag[size - 1];
 		for (int j = size - 2; j > -1; j--) {
 			// берем редуцированный столбец w
-			for (int i = 0; i < j; i++) {
-				w[i] = 0;
-			}
+			//for (int i = 0; i < j; i++) {
+			//	w[i] = 0;
+			//}
 			for (int i = j; i < size; i++) {
 				w[i] = A[i][j];
-				A[i][j] = 0;
+				A[i][j] = 0.;
 			}
 			A[j][j] = diag[j];
 
 			for (int i = j; i < size; i++) {
 				// выделяем редуцированную строку
-				for (int k = 0; k < j; k++) {
-					column[k] = 0;
-				}
+				//for (int k = 0; k < j; k++) {
+				//	column[k] = 0;
+				//}
 				for (int k = j; k < size; k++) {
 					column[k] = A[i][k];
 				}
-				double sc_prod = scalar_product(column, w, size);
+				double sc_prod = scalar_product(column, w, j, size);
 
-				for (int k = 0; k < size; k++) {
+				for (int k = j; k < size; k++) {
 					A[i][k] -= 2 * sc_prod * w[k];
 				}
 			}
 		}
+		
 
 		//delete_vector(diag_w, size);
 		delete_vector(column, size);
