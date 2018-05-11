@@ -11,30 +11,7 @@ using namespace std;
 using namespace numeric_methods;
 
 
-int main() {
-	/*double** matr = nullptr;
-
-	size_t size = first_filling(matr);
-	
-	double** copy_matr = copy_matrix(matr, size);
-
-	print_matrix(matr, size);
-
-	cout << "\n\n";
-
-	inverse_triangle_matrix(matr, size);
-	print_matrix(matr, size);
-	//
-	//cout << "\n\n";
-	//
-	//reflection_method(copy_matr, size);
-	//print_matrix(copy_matr, size);
-
-	cout << "\n\n";
-
-	delete_matrix(copy_matr, size);
-	delete_matrix(matr, size);*/
-	
+int main() {	
 	double** matr = nullptr;
 	size_t size = hand_filling(matr);
 
@@ -43,10 +20,7 @@ int main() {
 	print_matrix(matr, size);
 	cout << "\n\n";
 
-	//inverse_triangle_matrix(matr, size);
-	//print_matrix(matr, size);
-
-	just_reflection(matr, size);
+	yet_another_reflection(matr, size);
 	print_matrix(matr, size);
 	cout << "\n\n";
 	double** E = matrix_mult(matr, copy_matr, size);
