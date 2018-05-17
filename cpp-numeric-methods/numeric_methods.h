@@ -65,5 +65,9 @@ namespace numeric_methods {
 
 	void yet_another_reflection(double** A, size_t size);
 
+	double** create_unit_matrix(size_t size);
+
+	double** matrix_sub(double** A, double** B, size_t size);
+
 	double** matrix_mult(double** A, double** B, size_t size);
 }

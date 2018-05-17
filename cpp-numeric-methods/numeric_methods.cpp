@@ -119,12 +119,12 @@ namespace numeric_methods {
 	double infinity_norm(double** matr, size_t n) {
 		double tmp(0);
 		for (size_t i = 0; i < n; i++) {
-			tmp += matr[i][0];
+			tmp += fabs(matr[i][0]);
 		}
-		for (size_t j = 1; j < n; j++) {
+		for (size_t i = 1; i < n; i++) {
 			double t(0);
-			for (size_t i = 0; i < n; i++) {
-				t += matr[i][j];
+			for (size_t j = 0; j < n; j++) {
+				t += fabs(matr[i][j]);
 			}
 			if (less_doubles(tmp, t)) {
 				tmp = t;
@@ -231,6 +231,18 @@ namespace numeric_methods {
 			tmp += a[i] * b[i];
 		}
 		return tmp;
+	}
+
+	double** matrix_sub(double** A, double** B, size_t size) {
+		double** C = create_matrix(size);
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				C[i][j] = A[i][j] - B[i][j];
+			}
+		}
+
+		return C;
 	}
 
 	int index_for_swap(double** A, size_t size, int j) {
@@ -470,5 +482,17 @@ namespace numeric_methods {
 		}
 
 		return C;
+	}
+
+	double** create_unit_matrix(size_t size) {
+		double** E = create_matrix(size);
+
+		zero_filling_matrix(E, size);
+
+		for (size_t i = 0; i < size; i++) {
+			E[i][i] = 1;
+		}
+
+		return E;
 	}
 }
