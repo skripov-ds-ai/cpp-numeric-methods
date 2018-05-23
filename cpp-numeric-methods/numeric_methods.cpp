@@ -3,6 +3,7 @@
 // метод отражений с выбором ведущего столбца
 #pragma once
 
+#define _USE_MATH_DEFINES
 #include <stdio.h>
 #include <math.h>
 #include <cstdlib>
@@ -316,72 +317,6 @@ namespace numeric_methods {
 		}
 	}
 
-	// still raw method
-	// danger! todo this method!
-	// в 3x3(пример из материалов) возникает ошибка в первой строке!
-	/*void just_reflection(double** A, size_t size) {
-		double* diag = create_vector(size);
-
-		// column - лишнее
-		double* column = create_vector(size);
-		double* w = create_vector(size);
-
-		for (int j = 0; j <= size - 2; j++) {
-			// берем редуцированный столбец, чтобы построить w
-			for (int i = j; i < size; i++) {
-				column[i] = A[i][j];
-			}
-			normal_w(column, w, j, size);
-
-			for (int i = j; i < size; i++) {
-				// выделяем редуцированный столбец
-				for (int k = j; k < size; k++) {
-					column[k] = A[k][i];
-				}
-				double sc_prod = scalar_product(column, w, j, size);
-
-				for (int k = j; k < size; k++) {
-					A[k][i] -= 2. * sc_prod * w[k];
-				}
-			}
-
-			diag[j] = w[j];
-			for (int i = j + 1; i < size; i++) {
-				A[i][j] = w[i];
-			}
-		}
-
-		// ошибка должна быть здесь!
-		// обратная треугольная
-		inverse_triangle_matrix(A, size);
-
-		for (int j = size - 2; j >= 0; j--) {
-			// берем редуцированный столбец w
-			w[j] = diag[j];
-			for (int i = j + 1; i < size; i++) {
-				w[i] = A[i][j];
-				A[i][j] = 0.;
-			}
-
-			for (int i = j; i < size; i++) {
-				// выделяем редуцированную строку
-				for (int k = j; k < size; k++) {
-					column[k] = A[i][k];
-				}
-				double sc_prod = scalar_product(column, w, j, size);
-
-				for (int k = j; k < size; k++) {
-					A[i][k] -= 2 * sc_prod * w[k];
-				}
-			}
-		}
-
-
-		delete_vector(column, size);
-		delete_vector(w, size);
-		delete_vector(diag, size);
-	}*/
-
 	void yet_another_reflection(double** A, size_t size) {
 		double* diag = create_vector(size);
 		double* w = create_vector(size);
@@ -454,20 +389,6 @@ namespace numeric_methods {
 		delete_vector(diag, size);
 	}
 
-	// method for coursework
-	// todo it!
-	void reflection_method(double** A, size_t size) {
-		int* transposes = new int[size];
-
-		double* diag = create_vector(size);
-		for (int i = 0; i < size; i++) {
-			diag[i] = A[i][i];
-		}
-
-		delete_vector(diag, size);
-		delete_int_vector(transposes, size);
-	}
-
 	double** matrix_mult(double** A, double** B, size_t size)
 	{
 		double** C = create_matrix(size);
@@ -494,5 +415,195 @@ namespace numeric_methods {
 		}
 
 		return E;
+	}
+
+	double* zero_phi_3_17(int n) {
+		double* phi = create_vector((n + 1) * (n + 1));
+		zero_filling_vector(phi, (n + 1) * (n + 1));
+		
+		return phi;
+	}
+
+	double* gen_exact_phi(int n) {
+		double* phi = create_vector((n + 1) * (n + 1));
+		double pi_2 = M_PI_2;
+
+		for (int i = 0; i < n + 1; i++) {
+			for (int j = 0; j < n + 1; j++) {
+				phi[(n + 1) * i + j] = 0.;
+			}
+		}
+
+		for (int i = 1; i < n; i++) {
+			for (int j = 1; j < n; j++) {
+				phi[(n + 1) * i + j] = sin(pi_2 * i) * sqrt(j);
+				//cout << "\n" << sin(pi_2 * i) * sqrt(j) << "\n";
+			}
+		}
+
+		return phi;
+	}
+
+	double* gen_exact_f(int n) {
+		double* phi = gen_exact_phi(n);
+
+		double* f = create_vector((n + 1) * (n + 1));
+		for (int i = 0; i < n + 1; i++) {
+			for (int j = 0; j < n + 1; j++) {
+				f[(n + 1) * i + j] = 0.;
+			}
+		}
+
+		for (int i = 1; i < n; i++) {
+			for (int j = 1; j < n; j++) {
+				f[(n + 1) * i + j] = -(
+					phi[(n + 1) * i + (j + 1)] +
+					phi[(n + 1) * i + (j - 1)] +
+					phi[(n + 1) * (i + 1) + j] +
+					phi[(n + 1) * (i - 1) + j] +
+					-4 * phi[(n + 1) * i + j]
+					) * ((double) n * n);
+			}
+		}
+
+
+		delete_vector(phi, (n + 1) * (n + 1));
+
+		return f;
+	}
+
+	void mult_3_14(int n, double* phi, double* f) {
+		for (int i = 0; i < n + 1; i++) {
+			for (int j = 0; j < n + 1; j++) {
+				f[(n + 1) * i + j] = 0.;
+			}
+		}
+
+		for (int i = 1; i < n; i++) {
+			for (int j = 1; j < n; j++) {
+				f[(n + 1) * i + j] = -(
+					phi[(n + 1) * i + (j + 1)] +
+					phi[(n + 1) * i + (j - 1)] +
+					phi[(n + 1) * (i + 1) + j] +
+					phi[(n + 1) * (i - 1) + j] +
+					-4 * phi[(n + 1) * i + j]
+					) * ((double) n * n);
+			}
+		}
+	}
+
+	// todo!
+	double* min_error_method_3_17(int n, double* f, double eps=1e-9) {
+		int size = (n + 1) * (n + 1);
+
+		int it = 0;
+		int maxit = 1000;
+		
+		double* tmp = create_vector(size);
+		//double* tmp1 = create_vector(size);
+		double* f_tmp = create_vector(size);
+		//double* err = create_vector(size);
+		double* delta = create_vector(size);
+		double* tmp_phi = zero_phi_3_17(n);
+		double* phi = zero_phi_3_17(n);
+
+		double norm = 0.;
+		double tau;
+		
+		do {
+			mult_3_14(n, tmp_phi, f_tmp);
+
+			// считаем невязку
+			for (int i = 0; i < n + 1; i++) {
+				for (int j = 0; j < n + 1; j++) {
+					delta[(n + 1) * i + j] =
+						f_tmp[(n + 1) * i + j] - f[(n + 1) * i + j];
+				}
+			}
+
+			mult_3_14(n, delta, tmp);
+
+			//cout << "\ndelta:\n";
+			//print_vector(delta, size);
+
+			tau = 0.;
+			double denom = 0.;
+
+			// считаем tau
+			for (int i = 0; i < n + 1; i++) {
+				for (int j = 0; j < n + 1; j++) {
+					tau +=
+						(
+							delta[(n + 1) * i + j]
+							*
+							delta[(n + 1) * i + j]
+						);
+					denom += 
+						(
+							tmp[(n + 1) * i + j]
+							*
+							tmp[(n + 1) * i + j]
+						);
+				}
+			}
+
+			if (denom == 0) {
+				it = -1;
+				break;
+			}
+
+			//cout << "\ntau = " << tau << "\n";
+			//cout << "\ndenom = " << denom << "\n";
+
+			tau = tau / denom;
+
+			//cout << "\ntmp:\n";
+			//print_vector(tmp, size);
+			//cout << "\nf:\n";
+			//print_vector(f, size);
+
+			for (int i = 0; i < n + 1; i++) {
+				for (int j = 0; j < n + 1; j++) {
+					phi[(n + 1) * i + j] =
+						tmp_phi[(n + 1) * i + j] - tau * tmp[(n + 1) * i + j];
+				}
+			}
+
+			norm = fabs(phi[0] - tmp_phi[0]);
+			for (int i = 0; i < n + 1; i++) {
+				for (int j = 0; j < n + 1; j++) {
+					if (
+						fabs(
+							phi[(n + 1) * i + j] - tmp_phi[(n + 1) * i + j]
+							) > norm
+						) {
+						norm = fabs(
+							phi[(n + 1) * i + j] 
+							- 
+							tmp_phi[(n + 1) * i + j]
+						);
+					}
+					tmp_phi[(n + 1) * i + j] = phi[(n + 1) * i + j];
+				}
+			}
+
+			//cout << "\nphi:\n";
+			//print_vector(phi, size);
+			//cout << "\nphi_tmp:\n";
+			//print_vector(tmp_phi, size);
+
+
+			it++;
+		} while ((norm >= eps)/* & (it < maxit)*/);
+
+
+		delete_vector(tmp, size);
+		//delete_vector(tmp1, size);
+		delete_vector(f_tmp, size);
+		//delete_vector(err, size);
+		delete_vector(delta, size);
+		delete_vector(tmp_phi, size);
+		//delete_vector(phi, size);
+		return phi;
 	}
 }

@@ -57,12 +57,6 @@ namespace numeric_methods {
 
 	double** copy_matrix(double** a, size_t size);
 
-	// method for coursework
-	//todo it!!!! remake!
-	void reflection_method(double** A, size_t size);
-
-	//void just_reflection(double** A, size_t size);
-
 	void yet_another_reflection(double** A, size_t size);
 
 	double** create_unit_matrix(size_t size);
@@ -70,4 +64,14 @@ namespace numeric_methods {
 	double** matrix_sub(double** A, double** B, size_t size);
 
 	double** matrix_mult(double** A, double** B, size_t size);
+
+	void mult_3_14(int n, double* phi, double* f);
+
+	double* gen_exact_f(int n);
+
+	double* gen_exact_phi(int n);
+
+	double* zero_phi_3_17(int n);
+
+	double* min_error_method_3_17(int n, double* f, double eps = 1e-9);
 }

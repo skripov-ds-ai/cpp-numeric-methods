@@ -107,8 +107,25 @@ int main() {
 	delete_matrix(matr, size);
 	*/
 
-	test();
+	//test();
 
+	int n = 4;
+	double* phi = gen_exact_phi(n);
+	
+	print_vector(phi, (n + 1) * (n + 1));
+
+	double* f = gen_exact_f(n);
+
+	double* phi_ = min_error_method_3_17(n, f);
+
+	cout << "\n\n\n";
+
+	print_vector(phi_, (n + 1) * (n + 1));
+
+	delete_vector(f, (n + 1) * (n + 1));
+	delete_vector(phi, (n + 1) * (n + 1));
+	delete_vector(phi_, (n + 1) * (n + 1));
+	
 	for (int i = 0; i < 3; i++) {
 		wait();
 	}
