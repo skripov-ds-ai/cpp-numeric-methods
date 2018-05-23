@@ -109,7 +109,7 @@ int main() {
 
 	//test();
 
-	int n = 4;
+	int n = 6;
 	double* phi = gen_exact_phi(n);
 	
 	print_vector(phi, (n + 1) * (n + 1));

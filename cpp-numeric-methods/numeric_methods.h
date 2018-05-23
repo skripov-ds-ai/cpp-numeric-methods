@@ -74,4 +74,8 @@ namespace numeric_methods {
 	double* zero_phi_3_17(int n);
 
 	double* min_error_method_3_17(int n, double* f, double eps = 1e-9);
+
+	void matr_vect_mult(int size, double** A, double* v, double* res);
+
+	double* min_error_method(int n, double** A, double* f, double eps = 1e-9);
 }

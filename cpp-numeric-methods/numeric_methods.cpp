@@ -579,7 +579,7 @@ namespace numeric_methods {
 						) {
 						norm = fabs(
 							phi[(n + 1) * i + j] 
-							- 
+							-
 							tmp_phi[(n + 1) * i + j]
 						);
 					}
@@ -604,6 +604,97 @@ namespace numeric_methods {
 		delete_vector(delta, size);
 		delete_vector(tmp_phi, size);
 		//delete_vector(phi, size);
+		return phi;
+	}
+
+	void matr_vect_mult(int size, double** A, double* v, double* res) {
+		for (int i = 0; i < size; i++) {
+			res[i] = 0.;
+			for (int j = 0; j < size; j++) {
+				res[i] += A[i][j] * v[j];
+			}
+		}
+	}
+
+	double* min_error_method(int n, double** A, double* f, double eps = 1e-9) {
+		int it = 0;
+		int maxit = 1000;
+
+		double* tmp = create_vector(n);
+		double* f_tmp = create_vector(n);
+		double* delta = create_vector(n);
+		double* tmp_phi = create_vector(n);
+		double* phi = create_vector(n);
+
+		double norm = 0.;
+		double tau;
+
+		do {
+			matr_vect_mult(n, A, tmp_phi, f_tmp);
+
+			// считаем невязку
+			for (int i = 0; i < n; i++) {
+				delta[i] =
+						f_tmp[i] - f[i];
+			}
+
+			matr_vect_mult(n, A, delta, tmp);
+
+			tau = 0.;
+			double denom = 0.;
+
+			// считаем tau
+			for (int i = 0; i < n; i++) {
+				tau +=
+						(
+							delta[i]
+							*
+							delta[i]
+							);
+				denom +=
+						(
+							tmp[i]
+							*
+							tmp[i]
+							);
+			}
+
+			if (denom == 0) {
+				it = -1;
+				break;
+			}
+
+			tau = tau / denom;
+
+			for (int i = 0; i < n; i++) {
+				phi[i] =
+					tmp_phi[i] - tau * tmp[i];
+			}
+
+			norm = fabs(phi[0] - tmp_phi[0]);
+			for (int i = 0; i < n; i++) {
+				if (
+					fabs(
+							phi[i] - tmp_phi[i]
+						) > norm
+					) {
+						norm = fabs(
+							phi[i]
+							-
+							tmp_phi[i]
+						);
+					}
+					tmp_phi[i] = phi[i];		
+			}
+
+			it++;
+		} while ((norm >= eps)/* & (it < maxit)*/);
+
+
+		delete_vector(tmp, n);
+		delete_vector(f_tmp, n);
+		delete_vector(delta, n);
+		delete_vector(tmp_phi, n);
 		return phi;
 	}
 }
