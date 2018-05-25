@@ -27,22 +27,6 @@ namespace numeric_methods {
 		}
 	}
 
-	//size_t* create_transpositions_vector(size_t n) {
-	//	size_t* tmp = new size_t[n];
-	//	return tmp;
-	//}
-
-	//void delete_transpositions_vector(size_t* vect, size_t n) {
-	//	delete[] vect;
-	//}
-
-
-
-	//template <typename T> int sgn(T val) {
-	//	return (T(0) < val) - (val < T(0));
-	//}
-
-
 	double* create_vector(size_t n) {
 		double* tmp = new double[n];
 		return tmp;
@@ -141,29 +125,6 @@ namespace numeric_methods {
 		}
 		return sqrt(tmp);
 	}
-
-	/*void inverse_triangle_matrix(double** u, size_t size) {
-		for (int i = size - 1; i > -1; i--) {
-			double* u_i_n = create_vector(size - i);
-
-			for (int l = i; l < size; l++) {
-				u_i_n[l - i] = u[i][l];
-			}
-
-			u[i][i] = 1 / u_i_n[0];
-
-			for (int j = i + 1; j < size; j++) {
-				double tmp(0);
-				for (size_t k = i + 1; k <= j; k++) {
-					tmp += u_i_n[k - i] * u[k][j];
-				}
-				u[i][j] = tmp;
-				u[i][j] /= -u_i_n[0];
-			}
-
-			delete_vector(u_i_n, size - i);
-		}
-	}*/
 
 	size_t hand_filling(double**& a) {
 		size_t size(0);
@@ -279,7 +240,6 @@ namespace numeric_methods {
 		return tmp;
 	}
 
-	// todo! возможно ошибка здесь!
     void inverse_triangle_matrix(double** u, size_t size) {
 		double *tmp = create_vector(size);
 		for (int i = size - 1; i >= 0; i--) {
@@ -417,6 +377,10 @@ namespace numeric_methods {
 		return E;
 	}
 
+	int size_3_17(int n) {
+		return (n + 1) * (n + 1);
+	}
+
 	double* zero_phi_3_17(int n) {
 		double* phi = create_vector((n + 1) * (n + 1));
 		zero_filling_vector(phi, (n + 1) * (n + 1));
@@ -436,7 +400,7 @@ namespace numeric_methods {
 
 		for (int i = 1; i < n; i++) {
 			for (int j = 1; j < n; j++) {
-				phi[(n + 1) * i + j] = sin(pi_2 * i) * sqrt(j);
+				phi[(n + 1) * i + j] = sin(i) * cos(j);
 				//cout << "\n" << sin(pi_2 * i) * sqrt(j) << "\n";
 			}
 		}
@@ -493,7 +457,9 @@ namespace numeric_methods {
 	}
 
 	// todo!
-	double* min_error_method_3_17(int n, double* f, double eps=1e-9) {
+	double* min_error_method_3_17(int n, double* f, int& err, int& its, double eps=1e-9) {
+		err = 0;
+
 		int size = (n + 1) * (n + 1);
 
 		int it = 0;
@@ -549,6 +515,7 @@ namespace numeric_methods {
 
 			if (denom == 0) {
 				it = -1;
+				err = 42;
 				break;
 			}
 
@@ -596,6 +563,7 @@ namespace numeric_methods {
 			it++;
 		} while ((norm >= eps)/* & (it < maxit)*/);
 
+		its = it;
 
 		delete_vector(tmp, size);
 		//delete_vector(tmp1, size);
@@ -616,7 +584,9 @@ namespace numeric_methods {
 		}
 	}
 
-	double* min_error_method(int n, double** A, double* f, double eps = 1e-9) {
+	double* min_error_method(int n, double** A, double* f, int& err, double eps = 1e-9) {
+		err = 0;
+
 		int it = 0;
 		int maxit = 1000;
 
@@ -661,6 +631,7 @@ namespace numeric_methods {
 
 			if (denom == 0) {
 				it = -1;
+				err = 42;
 				break;
 			}
 
@@ -696,5 +667,33 @@ namespace numeric_methods {
 		delete_vector(delta, n);
 		delete_vector(tmp_phi, n);
 		return phi;
+	}
+
+	double vect_norm(double* v, int n) {
+		double max = v[0];
+		for (int i = 0; i < n; i++) {
+			if (fabs(v[i]) > max) {
+				max = fabs(v[i]);
+			}
+		}
+		return max;
+	}
+
+	double* vect_sub(double* a, double* b, int n) {
+		double* c = create_vector(n);
+		for (int i = 0; i < n; i++) {
+			c[i] = a[i] - b[i];
+		}
+		return c;
+	}
+
+	double* copy_vector(double* a, int n) {
+		double* b = create_vector(n);
+
+		for (int i = 0; i < n; i++) {
+			b[i] = a[i];
+		}
+
+		return b;
 	}
 }

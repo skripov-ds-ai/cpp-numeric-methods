@@ -8,6 +8,8 @@
 #include "numeric_methods.h"
 #include "Mygen\Mygen.cpp"
 
+#include <ctime>
+
 using namespace std;
 using namespace numeric_methods;
 
@@ -84,6 +86,112 @@ void test() {
 	delete_matrix(residual, N);
 }
 
+void test_2() {
+	int cond = 1;
+	int err = 0;
+
+	cout << "start 1!\n\n";
+
+	for (int n = 100; n < 120; n += 20) {
+		for (double eps = 1e-9; eps < 1 + 1e-9; eps++) {
+			int its = 0;
+
+			long start = clock();
+
+			double* exact_sol = gen_exact_phi(n);
+			double* f = gen_exact_f(n);
+
+			double* sol = min_error_method_3_17(n, f, err, its, eps);
+
+			double* error = vect_sub(sol, exact_sol, size_3_17(n));
+
+			double* Ax = create_vector(size_3_17(n));
+			mult_3_14(n, sol, Ax);
+
+			double* residual = vect_sub(Ax, f, size_3_17(n));
+
+			double z, r, zeta, ro;
+			z = vect_norm(error, size_3_17(n));
+			r = vect_norm(residual, size_3_17(n));
+			zeta = z / vect_norm(exact_sol, size_3_17(n));
+			ro = r / vect_norm(f, size_3_17(n));
+
+			long end = clock();
+
+			cout << "n = " << n << "\n";
+			cout << "size = " << size_3_17(n) << "\n";
+			cout << "eps = " << eps << "\n";
+			cout << "err = " << err << "\n";
+			cout << "||z|| = " << z << "\n";
+			cout << "||r|| = " << r << "\n";
+			cout << "zeta = " << zeta << "\n";
+			cout << "ro = " << ro << "\n";
+			cout << "its = " << its << "\n";
+			cout << "durability = " << (double)(end - start) / CLOCKS_PER_SEC << " s\n";
+			cout << "\n\n\n";
+
+			delete_vector(Ax, size_3_17(n));
+			delete_vector(f, size_3_17(n));
+			delete_vector(exact_sol, size_3_17(n));
+			delete_vector(residual, size_3_17(n));
+			delete_vector(error, size_3_17(n));
+			delete_vector(sol, size_3_17(n));
+		}
+	}
+
+	cout << "finish 1!!!\n\n\n\n";
+	cout << "start 2!\n\n";
+	for (int n = 100; n < 101; n++) {
+		for (double eps = 1e-5; eps >= 1e-15; eps /= 10) {
+			int its = 0;
+
+			long start = clock();
+
+			double* exact_sol = gen_exact_phi(n);
+			double* f = gen_exact_f(n);
+
+			double* sol = min_error_method_3_17(n, f, err, its, eps);
+
+			double* error = vect_sub(sol, exact_sol, size_3_17(n));
+
+			double* Ax = create_vector(size_3_17(n));
+			mult_3_14(n, sol, Ax);
+
+			double* residual = vect_sub(Ax, f, size_3_17(n));
+
+			double z, r, zeta, ro;
+			z = vect_norm(error, size_3_17(n));
+			r = vect_norm(residual, size_3_17(n));
+			zeta = z / vect_norm(exact_sol, size_3_17(n));
+			ro = r / vect_norm(f, size_3_17(n));
+
+			long end = clock();
+
+			cout << "n = " << n << "\n";
+			cout << "size = " << size_3_17(n) << "\n";
+			cout << "eps = " << eps << "\n";
+			cout << "err = " << err << "\n";
+			cout << "||z|| = " << z << "\n";
+			cout << "||r|| = " << r << "\n";
+			cout << "zeta = " << zeta << "\n";
+			cout << "ro = " << ro << "\n";
+			cout << "its = " << its << "\n";
+			cout << "durability = " << (double)(end - start) / CLOCKS_PER_SEC << " s\n";
+			cout << "\n\n\n";
+
+			delete_vector(Ax, size_3_17(n));
+			delete_vector(f, size_3_17(n));
+			delete_vector(exact_sol, size_3_17(n));
+			delete_vector(residual, size_3_17(n));
+			delete_vector(error, size_3_17(n));
+			delete_vector(sol, size_3_17(n));
+		}
+	}
+
+	cout << "finish 2!!!";
+
+}
+
 int main() {
 	/*double** matr = nullptr;
 	size_t size = hand_filling(matr);
@@ -109,7 +217,7 @@ int main() {
 
 	//test();
 
-	int n = 6;
+	/*int n = 6;
 	double* phi = gen_exact_phi(n);
 	
 	print_vector(phi, (n + 1) * (n + 1));
@@ -125,7 +233,10 @@ int main() {
 	delete_vector(f, (n + 1) * (n + 1));
 	delete_vector(phi, (n + 1) * (n + 1));
 	delete_vector(phi_, (n + 1) * (n + 1));
-	
+	*/
+
+	test_2();
+
 	for (int i = 0; i < 3; i++) {
 		wait();
 	}
